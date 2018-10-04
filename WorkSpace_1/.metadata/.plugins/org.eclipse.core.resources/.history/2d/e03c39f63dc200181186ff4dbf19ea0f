@@ -1,0 +1,167 @@
+package Persistence;
+
+import java.io.File;
+import java.util.ArrayList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.soap.Node;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
+
+import Entidades.Empleados;
+
+public class EmpleadosPersistence {
+	
+	public static int abrir_XML_DOM(File fichero, Document doc, ArrayList<Empleados> EmpleadosArrayList){
+		try{
+			//Se crea un objeto DocumentBuilderFactory
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
+			//Indica que el modelo DOM no debe contemplar los comentarios que tenga el XML
+			factory.setIgnoringComments(true);
+	
+			//Ignora los espacios en blanco que tenga el documento factory.setIgnoringElementContentWhitespace(true);
+			//Se crea un objeto DocumentBuilder para cargar en él la estructura del árbol DOM a partir del XML seleccionado
+	
+			DocumentBuilder builder = factory.newDocumentBuilder();
+	
+			//Interpreta (parsea) el documento XML (file) y genera el DOM equivalente
+	
+			doc = (Document) builder.parse(fichero);
+	
+			//Ahora doc apunta al árbol DOM listo para ser recorrido
+			/* String titulo = "Este es el titulo";
+			 String Autor = "Este es el autor";
+			 String anno = "2222";*/
+			//annadirDOM(doc,titulo,Autor,anno);
+			
+			String prueba = recorrerDOMyPasarArray (doc,EmpleadosArrayList);
+			System.out.println(prueba);
+			//guardarDOMcomoFILE();
+			return 0;
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
+	public static String recorrerDOMyPasarArray(Document doc, ArrayList<Empleados> EmpleadosArrayL){ 
+		String datos_nodo[] = null;
+		String salida = "";
+
+		org.w3c.dom.Node node;
+
+		//Obtiene el primer nodo del DOM (primer hijo) 
+		org.w3c.dom.Node raiz = doc.getFirstChild();
+		
+		//Obtiene una lsita de nodos con todos los nodos hijo del raíz 
+		NodeList nodeList = raiz.getChildNodes();
+		
+		//Procesa los nodos hijo
+		for (int i = 0; i < nodeList.getLength(); i++){ 
+			node = nodeList.item(i);
+	
+			if (node.getNodeType() == Node.ELEMENT_NODE){ // Es un nodo libro
+				datos_nodo = procesarListaEmpleados(node);
+				
+				salida = salida + "\n " + "ID: " +
+				datos_nodo[0];
+			
+				salida = salida + "\n " + "APELLIDO: " + datos_nodo[1];
+			
+				salida = salida + "\n " + "DEPARTAMENTO: " +
+				datos_nodo[2];
+				
+				salida = salida + "\n " + "SUELDO: " +
+				datos_nodo[3];
+			
+				salida = salida + "\n --------------------";
+				
+				Empleados Emp =new Empleados (Integer.parseInt(datos_nodo[0]), datos_nodo[1], datos_nodo[2], Double.parseDouble(datos_nodo[3]));
+				
+				//Emp.leer_datos_Empleado(teclado);
+				
+				EmpleadosArrayL.add(Emp);
+				
+			}
+		}
+		return salida;
+	}
+	
+	protected static String[] procesarListaEmpleados(org.w3c.dom.Node node){
+
+		NodeList nodos = node.getChildNodes();
+		String datos[] = new String[nodos.getLength()];
+
+		org.w3c.dom.Node ntemp = null;
+		int contador = 1;
+
+		//Obtiene el valor del primer atributo del nodo (solo uno en este ejemplo)
+		datos[0] = node.getAttributes().item(0).getNodeValue();
+
+		//Obtiene los hijos del Libro (título y autor)
+		
+
+		for (int i = 0; i <nodos.getLength(); i++){ 
+			ntemp = nodos.item(i);
+
+			if(ntemp.getNodeType() == Node.ELEMENT_NODE){
+
+			/* Importante: para obtener el texto con el título y autor se accede al nodo TEXT hijo de ntemp y se saca su valor */
+			datos[contador] = ntemp.getChildNodes().item(0).getNodeValue();
+			contador++;
+			}
+		}
+		return datos;
+	}
+	
+	public static int anyadirNuevoEmpleado (Document doc, Empleados Emp, String Id){
+		try{
+						
+			//Se crea un nodo tipo Element con nombre 'titulo' (<Titulo>)
+			Element nApellido = doc.createElement("Apellido");
+			//Se crea un nodo tipo texto con el títlo del libro
+			Text nApellido_text = doc.createTextNode(Emp.getApellido());
+
+			//Se añade el nodo de texto con el título como hijo del elemento Titulo 
+			nApellido.appendChild(nApellido_text);
+
+			//Se hace lo mismo que con titulo a autor (<Autor>) 
+			Element nDepartamento = doc.createElement("Departamento");
+			Text nDepartamento_text = doc.createTextNode(Emp.getDepart());
+			nDepartamento.appendChild(nDepartamento_text);
+			
+			Element nSueldo = doc.createElement("Sueldo");
+			Text nSueldo_text = doc.createTextNode(String.valueOf(Emp.getSueldo()));
+			nDepartamento.appendChild(nSueldo_text);
+
+			//Se crea un nodo de tipo elemento (<libro>)
+			Element nEmpleado = doc.createElement("Empleado");
+
+			//Al nuevo nodo libro se le añade un atributo publicado_en 
+			((Element)nEmpleado).setAttribute("Id", Id);
+			//Se añade a libro el nodo autor y titulo creados antes 
+			nEmpleado.appendChild(nApellido);
+			nEmpleado.appendChild(nDepartamento);
+			nEmpleado.appendChild(nSueldo);
+			
+			/* Finalmente, se obtiene el primer nodo del documento y a él se le
+			añade como hijo el nodo libro que ya tiene colgando todos sus hijos y atributos creados antes. */
+			org.w3c.dom.Node raiz = doc.getChildNodes().item(0);
+			raiz.appendChild(nEmpleado);
+			return 0;
+		}
+
+		catch(Exception e){
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
+	
+}

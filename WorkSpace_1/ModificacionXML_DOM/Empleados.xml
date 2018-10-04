@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Empleados>
+    <Empleado Id="1111">
+        <Apellido>Apellido 1111</Apellido>
+        <Departamento>Departamento 1111</Departamento>
+        <Sueldo>1111</Sueldo>
+    </Empleado>
+    <Empleado Id="1112">
+        <Apellido>Apellido 1112</Apellido>
+        <Departamento>Departamento 1112</Departamento>
+        <Sueldo>1111</Sueldo>
+    </Empleado>
+    <Empleado Id="1113">
+        <Apellido>apellido 1113</Apellido>
+        <Departamento>Departamento 1113</Departamento>
+        <Sueldo>1111</Sueldo>
+    </Empleado>
+    <Empleado Id="1114">
+        <Apellido>Apellido 1114</Apellido>
+        <Departamento>Departamento 1114</Departamento>
+        <Sueldo>1111</Sueldo>
+    </Empleado>
+</Empleados>
